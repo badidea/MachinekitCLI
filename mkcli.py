@@ -16,27 +16,18 @@
 ##
 
 import sys, os
-from cmd2 import Cmd, make_option, options
+from cmd import Cmd
 import linuxcnc
 
 c = linuxcnc.command()
 s = linuxcnc.stat()
 
+
 class MachinekitCLI(Cmd):
     intro = 'Welcome to the test version of MachinekitCLI.   Type help or ? to list commands.\n'
     prompt = '(CNC Command) '
-    Cmd.shortcuts.update({'&': 'cnccmd'})
     file = None
     prog_file = ("/home/machinekit/gcode/program.nc")
-
-    @options([make_option('-m', '--machine', type="string", help="Machine On/Off"),
-          make_option('-e', '--estop', type="string", help="Estop On/Off"),
-          make_option('-f', '--file', type="string", help="File to Run in Auto"),
-          make_option('-h', '--home', type="int", help="Home an axis.")
-            ])
- 
-    def __init__(self):
-        Cmd.__init__(self)
  
     def do_mdi(self, arg, opts=None):
         """execute MDI command"""
@@ -48,59 +39,60 @@ class MachinekitCLI(Cmd):
  
     def do_pos(self, arg, opts=None):
         s.poll()
-        self.stdout.write(self.s.position)
+        self.stdout.write(s.position)
 
-    def do_file(self, args, opts=None):
+    def do_file(self, arg, opts=None):
         file_n = ''.join(arg)
         if os.path.exists(file_n):
-            prog_file = opts.file
-            self.stdout.write(file_n + ' ' + 'is selected for auto mode.')
+            prog_file = file_n
+            self.stdout.write(file_n + ' ' + 'is selected for auto mode.' + '\n')
         else:
-            self.stdout.write('File not found.')
+            self.stdout.write('File not found.' + '\n')
 
     def do_auto(self, arg, opts=None):
         program_start_line = 0
         """Open File and run in Auto"""
         c.mode(linuxcnc.MODE_AUTO)
         c.wait_complete()
-        c.program_open(prog_file)
+        c.program_open(self.prog_file)
         c.auto(linuxcnc.AUTO_RUN, program_start_line)
         c.wait_complete()
 
+
     def do_home(self, arg, opts=None):
         home_n = ''.join(arg)
-        if opts.home == 0:
-            self.stdout.write('Homing Axis.0')
+        if home_n == "0":
+            self.stdout.write('Homing Axis.0' + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(0)
             c.wait_complete()
-        if opts.home == 1:
-            self.stdout.write('Homing Axis.1')
+        if home_n  == "1":
+            self.stdout.write('Homing Axis.1' + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(1)
             c.wait_complete()
-        if opts.home == 2:
-            self.stdout.write('Homing Axis.2')
+        if home_n  == "2":
+            self.stdout.write('Homing Axis.2' + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(2)
             c.wait_complete()
-        if opts.home == 3:
-            self.stdout.write('Homing Axis.3')
+        if home_n  == "3":
+            self.stdout.write('Homing Axis.3' + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(3)
             c.wait_complete()
-        if opts.home == 4:
-            self.stdout.write('Homing Axis.4')
+        if home_n  == "4":
+            self.stdout.write('Homing Axis.4' + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(4)
             c.wait_complete()
-        if opts.home == 5:
-            self.stdout.write('Homing Axis.5')
+        if home_n  == "5":
+            self.stdout.write('Homing Axis.5' + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(5)
@@ -110,27 +102,23 @@ class MachinekitCLI(Cmd):
     # ----- basic cnc state commands -----
     def do_machine(self, arg, opts=None):
         """Turn Machine On/Off."""
-        state_n = ''.join(arg)
-        if opts.machine == "on":
-            self.stdout.write('Machine On')
-            self.stdout.write('\n')
+        mach = ''.join(arg)
+        if mach == "on":
+            self.stdout.write('Machine On' + '\n')
             c.state(linuxcnc.STATE_ON)
-        if opts.machine == "off":
-            self.stdout.write('Machine Off')
-            self.stdout.write('\n')
+        if mach == "off":
+            self.stdout.write('Machine Off' + '\n')
             c.state(linuxcnc.STATE_OFF)
     def do_estop(self, arg, opts=None):
         """Turn Estop On/Off"""
-        state_n = ''.join(arg)
-        if opts.estop == "on":
-            self.stdout.write('E-Stop On')
-            self.stdout.write('\n')
+        es = ''.join(arg)
+        if es == "on":
+            self.stdout.write('E-Stop On' + '\n')
             c.state(linuxcnc.STATE_ESTOP)
-        if opts.estop == "off":
-            self.stdout.write('E-Stop Off')
-            self.stdout.write('\n')
+        if es == "off":
+            self.stdout.write('E-Stop Off' + '\n')
             c.state(linuxcnc.STATE_ESTOP_RESET)
-            
+
 
 mk = MachinekitCLI()
 mk.cmdloop()
