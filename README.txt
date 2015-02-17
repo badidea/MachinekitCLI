@@ -10,6 +10,11 @@ auto					:Sets to Auto Mode and Runs selected file from line 0
 pos						:Outputs Axis Positions
 home X					:Sets or starts Homing on axis (X is the axis number not name)
 
+To use:
+copy mkcli.py to \home\machinekit\machinekit-dev\bin\mkcli
+in your .ini:
+Comment out the current DISPLAY (#DISPLAY = axis or tkemc)
+add DISPLAY = mkcli
 
 TODO:
 -Add ability to pick which line of program you want to start from in Auto
