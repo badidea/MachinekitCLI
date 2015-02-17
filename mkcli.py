@@ -118,6 +118,8 @@ class MachinekitCLI(Cmd):
         if es == "off":
             self.stdout.write('E-Stop Off' + '\n')
             c.state(linuxcnc.STATE_ESTOP_RESET)
+    def do_exit(self, arg, opts=None):
+        "Exit"
 
 
 mk = MachinekitCLI()
