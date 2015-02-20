@@ -30,7 +30,8 @@ class MachinekitCLI(Cmd):
     prog_file = ("/home/machinekit/gcode/program.nc")
  
     def do_mdi(self, arg, opts=None):
-        """execute MDI command"""
+        """Execute MDI command
+               mdi (gcode here)"""
         mdi = ''.join(arg)
         c.mode(linuxcnc.MODE_MDI)
         c.wait_complete()
@@ -38,6 +39,9 @@ class MachinekitCLI(Cmd):
         c.wait_complete()
  
     def do_pos(self, arg, opts=None):
+        """Outputs current absolute position.
+              pos # outputs axis #
+              pos   outputs all axis"""
         pos_n = ''.join(arg)
         s.poll()
         if pos_n is None:
@@ -49,6 +53,8 @@ class MachinekitCLI(Cmd):
             self.stdout.write(pos)
 
     def do_open(self, arg, opts=None):
+        """Selects a file for execution.
+                open /home/machinekit/gcode/yourprogram.ngc"""
         file_n = ''.join(arg)
         if os.path.exists(file_n):
             prog_file = file_n
@@ -56,9 +62,11 @@ class MachinekitCLI(Cmd):
             self.stdout.write('File not found.' + '\n')
 
     def do_program(self, arg, opts=None):
+        """States currently open program."""
         self.stdout.write(prog_file + ' ' + 'is selected for auto mode.' + '\n')
 
     def do_program_status(self, arg, opts=None):
+        """States current program status."""
         s.poll()
         status = s.interp_state
         if status == 1:
@@ -71,17 +79,20 @@ class MachinekitCLI(Cmd):
             self.stdout.write("WAITING" + '\n')
 
     def do_program_line(self, arg, opts=None):
+        """States current program line."""
         s.poll()
         read_line = str(s.read_line)
         self.stdout.write( read_line + ' is current line.' + '\n')
         
     def do_run(self, arg, opts=None):
+        """Runs open file in auto.
+               run # starts the program from the selected line number.
+               run   starts from the first line."""
         p_line = int(''.join(arg))
-        if p_line >= 1:
-            program_start_line = p_line
-        else:
+        if p_line is None:
             program_start_line = 0
-        """Open File and run in Auto"""
+        else:
+            program_start_line = p_line
         c.mode(linuxcnc.MODE_AUTO)
         c.wait_complete()
         c.program_open(self.prog_file)
@@ -89,40 +100,85 @@ class MachinekitCLI(Cmd):
         c.wait_complete()
         
     def do_pause(self, arg, opts=None):
+        """Pause program."""
         c.auto(linuxcnc.AUTO_PAUSE)
         c.wait_complete()
         
     def do_resume(self, arg, opts=None):
+        """Resume program."""
         c.auto(linuxcnc.AUTO_RESUME)
         c.wait_complete()
         
     def do_step(self, arg, opts=None):
+        """Execute single line of program."""
         c.auto(linuxcnc.AUTO_STEP)
         c.wait_complete()
 
     def do_home(self, arg, opts=None):
+        """Starts homing of selected axis.
+               home #    homes selected axis.
+               home all  homes all axis."""
         home_n = ''.join(arg)
-        home_it = int(home_n)
-        self.stdout.write('Homing Axis' + home_n + '\n')
-        c.mode(linuxcnc.MODE_MANUAL)
-        c.wait_complete()
-        c.home(home_it)
-        c.wait_complete()
+        if home_n is None:
+            self.stdout.write('Which axis to home?  Use- axis #' + '\n')
+        if home_n is 'all':
+            self.stdout.write('Homing All Axis' + '\n')
+            c.mode(linuxcnc.MODE_MANUAL)
+            c.wait_complete()
+            c.home(0)
+            c.home(1)
+            c.home(2)
+            c.home(3)
+            c.home(4)
+            c.home(5)
+            c.home(6)
+            c.home(7)
+            c.home(8)
+            c.wait_complete()
+        else:    
+            home_it = int(home_n)
+            self.stdout.write('Homing Axis' + home_n + '\n')
+            c.mode(linuxcnc.MODE_MANUAL)
+            c.wait_complete()
+            c.home(home_it)
+            c.wait_complete()
 
     def do_unhome(self, arg, opts=None):
+        """Unhomes selected axis.
+               unhome #    unhomes selected axis.
+               unhome all  unhomes all axis."""
         unhome_n = ''.join(arg)
-        unhome_it = int(home_n)
-        self.stdout.write('Axis' + home_n + 'Unhomed' + '\n')
-        c.mode(linuxcnc.MODE_MANUAL)
-        c.wait_complete()
-        c.unhome(unhome_it)
-        c.wait_complete()
+        if unhome_n is None:
+            self.stdout.write('Which axis to unhome?  Use- axis #' + '\n')
+        if unhome_n is 'all':
+            self.stdout.write('Unhoming All Axis' + '\n')
+            c.mode(linuxcnc.MODE_MANUAL)
+            c.wait_complete()
+            c.unhome(0)
+            c.unhome(1)
+            c.unhome(2)
+            c.unhome(3)
+            c.unhome(4)
+            c.unhome(5)
+            c.unhome(6)
+            c.unhome(7)
+            c.unhome(8)
+            c.wait_complete()
+        else:   
+            unhome_it = int(home_n)
+            self.stdout.write('Axis' + home_n + 'Unhomed' + '\n')
+            c.mode(linuxcnc.MODE_MANUAL)
+            c.wait_complete()
+            c.unhome(unhome_it)
+            c.wait_complete()
 
     def do_feed_override(self, arg, opts=None):
+        """Feed Override Percent 0-100."""
         f_ovr = int(''.join(arg))
         c.set_feed_override(f_ovr)
         
-     def do_spindle_override(self, arg, opts=None):
+    def do_spindle_override(self, arg, opts=None):
+        """Spindle Override Percent 0-100."""
         s_ovr = int(''.join(arg))
         c.set_spindle_override(s_ovr)
 
@@ -138,12 +194,13 @@ class MachinekitCLI(Cmd):
     def do_estop(self, arg, opts=None):
         """Turn Estop On/Off"""
         es = ''.join(arg)
-        if es == "on":
+        if es == 'on':
             c.state(linuxcnc.STATE_ESTOP)
-        if es == "off":
+        if es == 'off':
             c.state(linuxcnc.STATE_ESTOP_RESET)
             
     def do_state(self, arg, opts=None):
+        """Current Estop/Machine state."""
         s.poll()
         state = s.task_state
         if state == 1:
@@ -156,25 +213,28 @@ class MachinekitCLI(Cmd):
             self.stdout.write("Machine is On" + '\n')
 
     def do_set_mode(self, arg, opts=None):
+        """Change mode to mdi, auto, or manual.
+               set_mode mdi     sets to MDI
+               set_mode manual  sets to MANUAL
+               set_mode auto    sets to AUTO"""
         mode = ''.join(arg)
-        if mode == "auto":
+        if mode == 'auto':
             c.mode(linuxcnc.MODE_AUTO)
-        if mode == "manual":
+        if mode == 'manual':
             c.mode(linuxcnc.MODE_MANUAL)
-        if mode == "mdi":
+        if mode == 'mdi':
             c.mode(linuxcnc.MODE_MDI)
-        else:
-            self.stdout.write("Unknown Command" + '\n')
 
     def do_get_mode(self, arg, opts=None):
+        """States current mode."""
         s.poll()
         g_mode = s.task_mode
         if g_mode == 1:
-            self.stdout.write("MDI" + '\n')
+            self.stdout.write("MANUAL" + '\n')
         if g_mode == 2:
             self.stdout.write("AUTO" + '\n')
         if g_mode == 3:
-            self.stdout.write("MANUAL" + '\n')
+            self.stdout.write("MDI" + '\n')
 
 
             
