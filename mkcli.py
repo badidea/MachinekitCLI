@@ -27,7 +27,7 @@ class MachinekitCLI(Cmd):
     intro = 'Welcome to MachinekitCLI.   Type help or ? to list commands.\n'
     prompt = '(CNC) '
     file = None
-    prog_file = ("/home/machinekit/gcode/program.nc")
+    prog_file = ("/home/machinekit/gcode/program.ngc")
  
     def do_mdi(self, arg, opts=None):
         """Execute MDI command
@@ -54,7 +54,7 @@ class MachinekitCLI(Cmd):
 
     def do_open(self, arg, opts=None):
         """Selects a file for execution.
-                open /home/machinekit/gcode/yourprogram.ngc"""
+                open /home/machinekit/gcode/program.ngc"""
         file_n = ''.join(arg)
         if os.path.exists(file_n):
             prog_file = file_n
@@ -236,6 +236,34 @@ class MachinekitCLI(Cmd):
         if g_mode == 3:
             self.stdout.write("MDI" + '\n')
 
+    def do_studder(self, arg, opts=None):
+        """AutoStartup, Home, and warmup"""
+        c.state(linuxcnc.STATE_ON)
+        c.mode(linuxcnc.MODE_MANUAL)
+        c.wait_complete()
+        c.home(0)
+        c.home(1)
+        c.home(2)
+        c.home(3)
+        c.home(4)
+        c.home(5)
+        c.home(6)
+        c.home(7)
+        c.home(8)
+        c.wait_complete()
+        c.mode(linuxcnc.MODE_MDI)
+        c.wait_complete()
+        c.mdi(m104 p210)
+        c.wait_complete()
+        c.mode(linuxcnc.MODE_AUTO)
+        c.wait_complete()
+        c.program_open(self.prog_file)
+        c.auto(linuxcnc.AUTO_RUN, 0)
+        c.wait_complete()
+        c.mode(linuxcnc.MODE_MDI)
+        c.wait_complete()
+        c.mdi(x0 y0 z0)
+        c.wait_complete()
 
             
     def do_exit(self, line): return True
