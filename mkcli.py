@@ -24,7 +24,7 @@ s = linuxcnc.stat()
 
 
 class MachinekitCLI(Cmd):
-    intro = 'Welcome to the test version of MachinekitCLI.   Type help or ? to list commands.\n'
+    intro = 'Welcome to MachinekitCLI.   Type help or ? to list commands.\n'
     prompt = '(CNC) '
     file = None
     prog_file = ("/home/machinekit/gcode/program.nc")
