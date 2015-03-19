@@ -253,7 +253,7 @@ class MachinekitCLI(Cmd):
         c.wait_complete()
         c.mode(linuxcnc.MODE_MDI)
         c.wait_complete()
-        c.mdi(m104 p210)
+        c.mdi('m104 p210')
         c.wait_complete()
         c.mode(linuxcnc.MODE_AUTO)
         c.wait_complete()
@@ -262,7 +262,7 @@ class MachinekitCLI(Cmd):
         c.wait_complete()
         c.mode(linuxcnc.MODE_MDI)
         c.wait_complete()
-        c.mdi(x0 y0 z0)
+        c.mdi('x0 y0 z0')
         c.wait_complete()
 
             
