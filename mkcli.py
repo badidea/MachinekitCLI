@@ -47,7 +47,7 @@ class MachinekitCLI(Cmd):
             int(pos_n)
             pos_ask = int(pos_n)
             pos = str(s.axis[pos_ask]['output'])
-            self.stdout.write("Axis " pos_n + "=" + " " + pos + '\n')
+            self.stdout.write("Axis " + pos_n + "=" + " " + pos + '\n')
         except ValueError:
             if pos_n is '':
                 pos = str(s.position)
@@ -58,24 +58,19 @@ class MachinekitCLI(Cmd):
                     self.stdout.write(pos + '\n')
                 else:
                     self.stdout.write('Invalid Position Command' + '\n')
-        pos_n = ''.join(arg)
-        s.poll()
-
-        else:
-
 
     def do_open(self, arg, opts=None):
         """Selects a file for execution.
                 open /home/machinekit/gcode/program.ngc"""
         file_n = ''.join(arg)
         if os.path.exists(file_n):
-            prog_file = file_n
+            self.prog_file = file_n
         else:
             self.stdout.write('File not found.' + '\n')
 
     def do_program(self, arg, opts=None):
         """States currently open program."""
-        self.stdout.write(prog_file + ' ' + 'is selected for auto mode.' + '\n')
+        self.stdout.write(self.prog_file + ' ' + 'is selected for auto mode.' + '\n')
 
     def do_program_status(self, arg, opts=None):
         """States current program status."""
@@ -100,11 +95,15 @@ class MachinekitCLI(Cmd):
         """Runs open file in auto.
                run # starts the program from the selected line number.
                run   starts from the first line."""
-        p_line = int(''.join(arg))
-        if p_line is None:
-            program_start_line = 0
-        else:
+        p_line = ''.join(arg)
+        try:
+            int(p_line)
             program_start_line = p_line
+        except ValueError:
+            if p_line == '':
+                program_start_line = 0
+            else:
+                self.stdout.write('Invalid Program Start Command' + '\n')
         c.mode(linuxcnc.MODE_AUTO)
         c.wait_complete()
         c.program_open(self.prog_file)
@@ -168,7 +167,7 @@ class MachinekitCLI(Cmd):
         try:
             int(home_n)
             home_it = int(home_n)
-            self.stdout.write('Homing Axis ' + home_n + '\n')
+            self.stdout.write('Unhoming Axis ' + home_n + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.unhome(home_it)
