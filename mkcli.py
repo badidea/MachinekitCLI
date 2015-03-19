@@ -43,14 +43,26 @@ class MachinekitCLI(Cmd):
               pos # outputs axis #
               pos   outputs all axis"""
         pos_n = ''.join(arg)
-        s.poll()
-        if pos_n is None:
-            pos = str(s.position)
-            self.stdout.write(pos + '\n')
-        else:
+        try:
+            int(pos_n)
             pos_ask = int(pos_n)
-            pos = str(s.axis[pos_ask]['output'] + '\n')
-            self.stdout.write(pos)
+            pos = str(s.axis[pos_ask]['output'])
+            self.stdout.write("Axis " pos_n + "=" + " " + pos + '\n')
+        except ValueError:
+            if pos_n is '':
+                pos = str(s.position)
+                self.stdout.write(pos + '\n')
+            else:
+                if pos_n == 'all':
+                    pos = str(s.position)
+                    self.stdout.write(pos + '\n')
+                else:
+                    self.stdout.write('Invalid Position Command' + '\n')
+        pos_n = ''.join(arg)
+        s.poll()
+
+        else:
+
 
     def do_open(self, arg, opts=None):
         """Selects a file for execution.
@@ -119,59 +131,69 @@ class MachinekitCLI(Cmd):
                home #    homes selected axis.
                home all  homes all axis."""
         home_n = ''.join(arg)
-        if home_n is None:
-            self.stdout.write('Which axis to home?  Use- axis #' + '\n')
-        if home_n is 'all':
-            self.stdout.write('Homing All Axis' + '\n')
-            c.mode(linuxcnc.MODE_MANUAL)
-            c.wait_complete()
-            c.home(0)
-            c.home(1)
-            c.home(2)
-            c.home(3)
-            c.home(4)
-            c.home(5)
-            c.home(6)
-            c.home(7)
-            c.home(8)
-            c.wait_complete()
-        else:    
+        try:
+            int(home_n)
             home_it = int(home_n)
-            self.stdout.write('Homing Axis' + home_n + '\n')
+            self.stdout.write('Homing Axis ' + home_n + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
             c.home(home_it)
             c.wait_complete()
+        except ValueError:
+            if home_n is '':
+                self.stdout.write('Which axis to home?  Use- axis # or all' + '\n')
+            else:
+                if home_n == 'all':
+                    self.stdout.write('Homing All Axis' + '\n')
+                    c.mode(linuxcnc.MODE_MANUAL)
+                    c.wait_complete()
+                    c.home(0)
+                    c.home(1)
+                    c.home(2)
+                    c.home(3)
+                    c.home(4)
+                    c.home(5)
+                    c.home(6)
+                    c.home(7)
+                    c.home(8)
+                    c.wait_complete()
+                else:
+                    self.stdout.write('Invalid Homing Command' + '\n')
 
     def do_unhome(self, arg, opts=None):
         """Unhomes selected axis.
                unhome #    unhomes selected axis.
                unhome all  unhomes all axis."""
-        unhome_n = ''.join(arg)
-        if unhome_n is None:
-            self.stdout.write('Which axis to unhome?  Use- axis #' + '\n')
-        if unhome_n is 'all':
-            self.stdout.write('Unhoming All Axis' + '\n')
+        home_n = ''.join(arg)
+        try:
+            int(home_n)
+            home_it = int(home_n)
+            self.stdout.write('Homing Axis ' + home_n + '\n')
             c.mode(linuxcnc.MODE_MANUAL)
             c.wait_complete()
-            c.unhome(0)
-            c.unhome(1)
-            c.unhome(2)
-            c.unhome(3)
-            c.unhome(4)
-            c.unhome(5)
-            c.unhome(6)
-            c.unhome(7)
-            c.unhome(8)
+            c.unhome(home_it)
             c.wait_complete()
-        else:   
-            unhome_it = int(home_n)
-            self.stdout.write('Axis' + home_n + 'Unhomed' + '\n')
-            c.mode(linuxcnc.MODE_MANUAL)
-            c.wait_complete()
-            c.unhome(unhome_it)
-            c.wait_complete()
-
+        except ValueError:
+            if home_n is '':
+                self.stdout.write('Which axis to unhome?  Use- axis # or all' + '\n')
+            else:
+                if home_n == 'all':
+                    self.stdout.write('Unhoming All Axis' + '\n')
+                    c.mode(linuxcnc.MODE_MANUAL)
+                    c.wait_complete()
+                    c.unhome(0)
+                    c.unhome(1)
+                    c.unhome(2)
+                    c.unhome(3)
+                    c.unhome(4)
+                    c.unhome(5)
+                    c.unhome(6)
+                    c.unhome(7)
+                    c.unhome(8)
+                    c.wait_complete()
+                else:
+                    self.stdout.write('Invalid Unhoming Command' + '\n')
+                    
     def do_feed_override(self, arg, opts=None):
         """Feed Override Percent 0-100."""
         f_ovr = int(''.join(arg))
