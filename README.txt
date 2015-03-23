@@ -10,6 +10,12 @@ in your .ini:
 Comment out the current DISPLAY (#DISPLAY = axis or tkemc)
 add DISPLAY = mkcli
 
+Added bonus:
+To help clear up error clutter comment out:
+#INTRO_GRAPHIC = XXXX
+#INTRO_TIME = 5
+This gets rid of the cannot start xsession error in the linuxcnc boot.
+
 or:
 I have been told that it can run seperately with another display already running.
 
