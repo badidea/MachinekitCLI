@@ -297,7 +297,7 @@ class MachinekitCLI(Cmd):
         while s.axis[0]['homed'] == 0 or s.axis[1]['homed'] == 0 or s.axis[2]['homed'] == 0:
             sleep(2)
             s.poll()
-        self.do_mdi('')
+        self.do_mdi('m104 p210')
         s.poll()
         while s.interp_state == 2:
             sleep(2)
