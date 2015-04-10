@@ -15,7 +15,7 @@
 ## MachinekitClI is Copyright (C) David Marquart <dmarquart@gmail.com>
 ##
 
-import sys, os
+import sys, os, threading
 from time import sleep
 from cmd import Cmd
 import linuxcnc
@@ -23,12 +23,14 @@ import linuxcnc
 c = linuxcnc.command()
 s = linuxcnc.stat()
 
+"""Change the following for auto start/shutdown"""
+studder_start = 0
+kill_at_complete = 0
+prog_file = ("/home/machinekit/gcode/program.ngc")
 
 class MachinekitCLI(Cmd):
     intro = 'Welcome to MachinekitCLI.   Type help or ? to list commands.\n'
     prompt = '(CNC) '
-    file = None
-    prog_file = ("/home/machinekit/gcode/program.ngc")
  
     def do_mdi(self, arg, opts=None):
         """Execute MDI command
@@ -80,13 +82,13 @@ class MachinekitCLI(Cmd):
                 open /home/machinekit/gcode/program.ngc"""
         file_n = ''.join(arg)
         if os.path.exists(file_n):
-            self.prog_file = file_n
+            prog_file = file_n
         else:
             self.stdout.write('File not found.' + '\n')
 
     def do_program(self, arg, opts=None):
         """States currently open program."""
-        self.stdout.write(self.prog_file + ' ' + 'is selected for auto mode.' + '\n')
+        self.stdout.write(prog_file + ' ' + 'is selected for auto mode.' + '\n')
 
     def do_program_status(self, arg, opts=None):
         """States current program status."""
@@ -289,20 +291,25 @@ class MachinekitCLI(Cmd):
         if s.task_mode == 2: self.stdout.write("AUTO" + '\n')
         if s.task_mode == 3: self.stdout.write("MDI" + '\n')
 
-#    def do_studder(self, arg, opts=None):
-#        """AutoStartup, Home, and warmup"""
-#        c.state(linuxcnc.STATE_ON)
-#        c.wait_complete()
-#        self.do_home('all')
-#        while s.axis[0]['homed'] == 0 or s.axis[1]['homed'] == 0 or s.axis[2]['homed'] == 0:
-#            sleep(2)
-#            s.poll()
-#        self.do_mdi('m104 p210')
-#        s.poll()
-#        while s.interp_state == 2:
-#            sleep(2)
-#            s.poll()
-#        self.do_run('')
+    def do_studder(self, arg, opts=None):
+        """AutoStartup, Home, and warmup"""
+        file_n = ''.join(arg)
+        if os.path.exists(file_n):
+            prog_file = file_n
+        else:
+            self.stdout.write('File not found.' + '\n')
+        c.state(linuxcnc.STATE_ON)
+        c.wait_complete()
+        self.do_home('all')
+        while s.axis[0]['homed'] == 0 or s.axis[1]['homed'] == 0 or s.axis[2]['homed'] == 0:
+            sleep(2)
+            s.poll()
+        self.do_mdi('m104 p210')
+        s.poll()
+        while s.interp_state == 2:
+            sleep(2)
+            s.poll()
+        self.do_run('')
 
             
     def do_exit(self, line): return True
@@ -310,4 +317,11 @@ class MachinekitCLI(Cmd):
 
 
 mk = MachinekitCLI()
-mk.cmdloop()
+if studder_start == 1:
+    mk.do_studder(prog_file)
+    if kill_at_complete == 0:
+        mk.cmdloop()
+    else:
+        mk.do_exit()
+else:
+    mk.cmdloop()
